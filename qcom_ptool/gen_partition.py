@@ -128,16 +128,16 @@ def partition_options(argv):
             partition_entry["size_in_kb"] = str(kbytes)
         elif opt in ["--type-guid"]:
             partition_entry["type"] = arg
+        # qbootctl A/B slot flags (qbootctl gpt-utils.h)
         elif opt in ["--attributes"]:
             attribute_bits = int(arg, 16)
-            if attribute_bits & (1 << 2):
-                partition_entry["bootable"] = "true"
-            else:
-                partition_entry["bootable"] = "false"
-            if attribute_bits & (1 << 60):
-                partition_entry["readonly"] = "true"
-            else:
-                partition_entry["readonly"] = "false"
+
+            partition_entry["bootable"] = "true" if attribute_bits & (1 << 2) else "false"
+            partition_entry["active"] = "true" if attribute_bits & (1 << 50) else "false"
+            partition_entry["successful"] = "true" if attribute_bits & (1 << 54) else "false"
+            partition_entry["unbootable"] = "true" if attribute_bits & (1 << 55) else "false"
+            partition_entry["readonly"] = "true" if attribute_bits & (1 << 60) else "false"
+
         elif opt in ["--active"]:
             partition_entry["active"] = arg
         elif opt in ["--successful"]:

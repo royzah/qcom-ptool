@@ -118,6 +118,10 @@ def partition_size_in_kb(size):
 def partition_options(argv):
     partition_entry = partition_entry_defaults.copy()
     phys_part = 0
+
+    def get_bool_arg(arg):
+        return "true" if arg.lower() in ('1', 'y', 'yes', 'true') else "false"
+
     for opt, arg in argv:
         if opt in ["--lun", "--phys-part"]:
             phys_part = arg
@@ -128,26 +132,24 @@ def partition_options(argv):
             partition_entry["size_in_kb"] = str(kbytes)
         elif opt in ["--type-guid"]:
             partition_entry["type"] = arg
-        elif opt in ["--attributes"]:
-            attribute_bits = int(arg, 16)
-            if attribute_bits & (1 << 2):
-                partition_entry["bootable"] = "true"
-            else:
-                partition_entry["bootable"] = "false"
-            if attribute_bits & (1 << 60):
-                partition_entry["readonly"] = "true"
-            else:
-                partition_entry["readonly"] = "false"
+        elif opt in ["--bootable"]:
+            partition_entry["bootable"] = get_bool_arg(arg)
+        elif opt in ["--priority"]:
+            partition_entry["priority"] = str(int(arg) & 0x03)
+        elif opt in ["--tries-remaining"]:
+            partition_entry["triesremaining"] = str(int(arg) & 0x07)
+        elif opt in ["--read-only"]:
+            partition_entry["readonly"] = get_bool_arg(arg)
         elif opt in ["--active"]:
-            partition_entry["active"] = arg
+            partition_entry["active"] = get_bool_arg(arg)
         elif opt in ["--successful"]:
-            partition_entry["successful"] = arg
+            partition_entry["successful"] = get_bool_arg(arg)
         elif opt in ["--unbootable"]:
-            partition_entry["unbootable"] = arg
+            partition_entry["unbootable"] = get_bool_arg(arg)
         elif opt in ["--filename"]:
             partition_entry["filename"] = arg
         elif opt in ["--sparse"]:
-            partition_entry["sparse"] = arg
+            partition_entry["sparse"] = get_bool_arg(arg)
         if partition_entry["label"] in partition_image_map:
             partition_entry["filename"] = partition_image_map[partition_entry["label"]]
     return phys_part, partition_entry
@@ -171,6 +173,10 @@ def parse_partition_entries(partition_entries):
                         "type-guid=",
                         "filename=",
                         "attributes=",
+                        "bootable=",
+                        "priority=",
+                        "tries-remaining=",
+                        "readonly=",
                         "active=",
                         "successful=",
                         "unbootable=",

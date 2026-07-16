@@ -138,7 +138,7 @@ def partition_options(argv):
             partition_entry["priority"] = str(int(arg) & 0x03)
         elif opt in ["--tries-remaining"]:
             partition_entry["triesremaining"] = str(int(arg) & 0x07)
-        elif opt in ["--read-only"]:
+        elif opt in ["--readonly"]:
             partition_entry["readonly"] = get_bool_arg(arg)
         elif opt in ["--active"]:
             partition_entry["active"] = get_bool_arg(arg)
